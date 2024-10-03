@@ -23,11 +23,27 @@ function getTimeString(time){
     return `${hour} hour ${minute} minute ${remainingSecond} second ago`
 } 
 
-console.log(getTimeString(4320))
+    getTimeString(4320)
 
 const displayVideos = (videos) => {
-    console.log(videos)
     const videoContainer = document.getElementById('videos')
+    videoContainer.innerHTML = "";
+
+    if(videos.length === 0){
+        videoContainer.classList.remove('grid')
+        videoContainer.innerHTML = `
+        <div class="min-h-[300px] w-full flex flex-col gap-5 justify-center items-center">
+            <img src="images/icon.png"/>
+            <h2 class="text-2xl font-bold">
+            !!NO CONTENT HERE IN THIS CATEGORY
+            </h2>
+        </div>
+        `;
+        return;
+    }else{
+        videoContainer.classList.add('grid');
+    }
+
     videos.forEach((video) => {
 
         const card = document.createElement('div')
@@ -40,7 +56,7 @@ const displayVideos = (videos) => {
                 alt="Shoes" />
 
                 ${
-                    video.others.posted_date?.length == 0 ? "" : `<span class="absolute right-2 bottom-2 text-white bg-black rounded p-1">${getTimeString(video.others.posted_date)}</span>`
+                    video.others.posted_date?.length == 0 ? "" : `<span class="absolute right-2 bottom-2 text-xs text-white bg-black rounded p-1">${getTimeString(video.others.posted_date)}</span>`
                 }
 
                 
@@ -61,9 +77,19 @@ const displayVideos = (videos) => {
     })
 }
 
+
+const loadCategoryvideos = (id) => {
+    // alert(id);
+        // fetch the data
+        fetch(`https://openapi.programming-hero.com/api/phero-tube/category/${id}`)
+        .then((res) => res.json())
+        .then((data) => displayVideos(data.category))
+        .catch((error) => console.log(error))
+    };
+
 /*
-category: "Music"
-category_id: "1001"
+"category_id": "1001",
+"category": "Music"
 */ 
 
 // creat display Categories
@@ -73,12 +99,13 @@ const displayCategories = (Categories) => {
     // add data in html
     Categories.forEach((item) => {
         
-        const button = document.createElement('button')
-        button.classList = "btn";
-        button.innerText = item.category
+        const buttonContainer = document.createElement('div')
+        buttonContainer.innerHTML = `
 
+        <button onclick="loadCategoryvideos(${item.category_id})" class="btn">${item.category}</button>
+        `
         // add button to category container
-        CategoryContainer.append(button)
+        CategoryContainer.append(buttonContainer)
 
     });
 

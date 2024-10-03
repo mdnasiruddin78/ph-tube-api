@@ -7,9 +7,9 @@ const loadCategories = () => {
     .catch((error) => console.log(error))
 };
 
-const loadVideos = () => {
+const loadVideos = (searchText = "") => {
     // fetch the data
-    fetch('https://openapi.programming-hero.com/api/phero-tube/videos')
+    fetch(`https://openapi.programming-hero.com/api/phero-tube/videos?title=${searchText}`)
     .then((res) => res.json())
     .then((data) => displayVideos(data.videos))
     .catch((error) => console.log(error))
@@ -21,7 +21,7 @@ function getTimeString(time){
     const minute = remainingSecond /60;
     remainingSecond = remainingSecond % 60;
     return `${hour} hour ${minute} minute ${remainingSecond} second ago`
-} 
+}; 
 
 const removeActiveClass = () => {
     const buttons = document.getElementsByClassName('category-btn');
@@ -30,7 +30,33 @@ const removeActiveClass = () => {
     }
 } 
 
-    getTimeString(4320)
+getTimeString(4320)
+
+const loadDetails = async (videoId) => {
+    // console.log(videoId)
+    const uri = `https://openapi.programming-hero.com/api/phero-tube/video/${videoId}`
+    const res = await fetch(uri);
+    const data = await res.json();
+    // console.log(data);
+    displayDetails(data.video);
+};
+
+const displayDetails = (video) => {
+    console.log(video);
+    const detailContainer = document.getElementById('modal-content')
+
+    detailContainer.innerHTML = `
+
+    <img src=${video.thumbnail}/>
+    <p>${video.description}</p>
+
+    `
+
+    // way-1
+    // document.getElementById('showModalData').click();
+    // way-2
+    document.getElementById('customModal').showModal();
+}
 
 const displayVideos = (videos) => {
     const videoContainer = document.getElementById('videos')
@@ -77,11 +103,12 @@ const displayVideos = (videos) => {
                         ${video.authors[0].verified == true ? `<img class="w-5 object-cover" src="https://img.icons8.com/?size=48&id=D9RtvkuOe31p&format=png"/>` : " "}
                     </div>
 
+                    <p><button onclick="loadDetails('${video.video_id}')" class="btn btn-sm btn-error">details</button></p>
                </div>
             </div>
         `
         videoContainer.append(card) 
-    })
+    });
 }
 
 
@@ -126,5 +153,8 @@ const displayCategories = (Categories) => {
 };
 
 
+document.getElementById('search-input').addEventListener('keyup',(e) => {
+    loadVideos(e.target.value)
+});
 loadCategories();
 loadVideos();
